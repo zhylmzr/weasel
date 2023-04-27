@@ -4,6 +4,7 @@
 
 HHOOK KeyboardManager::m_hook_handle;
 RimeWithWeaselHandler *KeyboardManager::pHandler;
+CComPtr<ITfCompartment> KeyboardManager::spStatusComp;
 
 KeyboardManager::KeyboardManager(RimeWithWeaselHandler *handler) { pHandler = handler; }
 
@@ -35,49 +36,67 @@ LRESULT CALLBACK KeyboardManager::_HookProc(int nCode, WPARAM wParam, LPARAM lPa
 
         if (kb->vkCode == VK_CAPITAL) {
             if (wParam == WM_KEYUP && pHandler) {
-                bool ascii_mode = pHandler->ToggleAllAsciiMode();
-                SetAsciiMode(ascii_mode);
+                auto old_status = pHandler->GlobalToggleAsciiMode();
+                bool ascii_mode = !old_status.ascii_mode;
+                SetAsciiModeIcon(ascii_mode, ascii_mode && old_status.composing);
             }
             return 1;
         }
-        return CallNextHookEx(m_hook_handle, nCode, wParam, lParam);
+    }
+    return CallNextHookEx(m_hook_handle, nCode, wParam, lParam);
+}
+
+void KeyboardManager::SetAsciiModeIcon(bool ascii_mode, bool send_key) {
+    InitStatusComponent();
+    if (spStatusComp) {
+        VARIANT var;
+        VariantInit(&var);
+        var.vt = VT_I4;
+        var.intVal = (int)ascii_mode;
+        HRESULT hr = spStatusComp->SetValue(0, &var);
+        VariantClear(&var);
+
+        // trigger update ui
+        if (ascii_mode && send_key) {
+            const int LEN = 4;
+            INPUT inputs[LEN];
+            ZeroMemory(inputs, sizeof(inputs));
+            for (int i = 0; i < LEN; i++) {
+                inputs[i].type = INPUT_KEYBOARD;
+            }
+            inputs[0].ki.wVk = inputs[1].ki.wVk = VK_SPACE;
+            inputs[2].ki.wVk = inputs[3].ki.wVk = VK_BACK;
+            inputs[1].ki.dwFlags = inputs[3].ki.dwFlags = KEYEVENTF_KEYUP;
+            SendInput(LEN, inputs, sizeof(INPUT));
+        }
     }
 }
 
-bool KeyboardManager::SetAsciiMode(bool ascii_mode) {
-    ITfThreadMgr *pThreadMgr;
-    DWORD hr = CoCreateInstance(CLSID_TF_ThreadMgr, NULL, CLSCTX_INPROC_SERVER, IID_ITfThreadMgr, (void **)&pThreadMgr);
-
-    if (FAILED(hr)) {
-        return false;
+void KeyboardManager::InitStatusComponent() {
+    if (spStatusComp != nullptr) {
+        return;
     }
 
-    ITfCompartmentMgr *pCompMgr;
-    hr = pThreadMgr->GetGlobalCompartment(&pCompMgr);
+    CComPtr<ITfThreadMgr> spThreadMgr;
+    CComPtr<ITfCompartmentMgr> spCompMgr;
+
+    DWORD hr =
+        CoCreateInstance(CLSID_TF_ThreadMgr, NULL, CLSCTX_INPROC_SERVER, IID_ITfThreadMgr, (void **)&spThreadMgr);
     if (FAILED(hr)) {
-        pThreadMgr->Release();
-        return false;
+        goto faild;
+    }
+    hr = spThreadMgr->GetGlobalCompartment(&spCompMgr);
+    if (FAILED(hr)) {
+        goto faild;
+    }
+    hr = spCompMgr->GetCompartment(c_guidStatus, &spStatusComp);
+
+    if (FAILED(hr)) {
+        goto faild;
     }
 
-    ITfCompartment *pCompartment;
-    hr = pCompMgr->GetCompartment(c_guidStatus, &pCompartment);
-
-    if (FAILED(hr)) {
-        pThreadMgr->Release();
-        pCompMgr->Release();
-        return false;
-    }
-
-    VARIANT var;
-    VariantInit(&var);
-    var.vt = VT_I4;
-    var.intVal = (int)ascii_mode;
-    hr = pCompartment->SetValue(0, &var);
-    VariantClear(&var);
-
-    pThreadMgr->Release();
-    pCompMgr->Release();
-    pCompartment->Release();
-
-    return true;
+    return;
+faild:
+    LOG(ERROR) << "InitStatusComponent failed: " << hr;
+    return;
 }

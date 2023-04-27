@@ -102,6 +102,12 @@ namespace weasel
 	struct Status
 	{
 		Status() : ascii_mode(false), composing(false), disabled(false) {}
+		Status(Status &rhs) {
+			ascii_mode = rhs.ascii_mode;
+			composing = rhs.composing;
+			disabled = rhs.disabled;
+			schema_name = rhs.schema_name;
+		}
 		void reset()
 		{
 			schema_name.clear();

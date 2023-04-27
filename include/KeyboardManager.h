@@ -2,6 +2,7 @@
 #include <msctf.h>
 #include <RimeWithWeasel.h>
 #include <Consts.hpp>
+#include <atlbase.h>
 
 class RimeWithWeaselHandler;
 
@@ -17,10 +18,10 @@ class KeyboardManager {
 
    private:
     static LRESULT CALLBACK _HookProc(int nCode, WPARAM wParam, LPARAM lParam);
-
-    static bool SetAsciiMode(bool ascii_mode);
+    static void SetAsciiModeIcon(bool ascii_mode, bool send_key);
+    static void InitStatusComponent();
 
     static HHOOK m_hook_handle;
-
     static RimeWithWeaselHandler *pHandler;
+    static CComPtr<ITfCompartment> spStatusComp;
 };

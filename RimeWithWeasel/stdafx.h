@@ -25,3 +25,6 @@
 #include <sstream>
 
 using boost::interprocess::wbufferstream;
+
+// fix debug mode atl error: too many categories define
+#include <atlbase.h>

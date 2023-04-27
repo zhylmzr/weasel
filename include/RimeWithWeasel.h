@@ -35,7 +35,7 @@ public:
 
 	void OnUpdateUI(std::function<void()> const &cb);
 
-	bool ToggleAllAsciiMode(int ascii_mode = -1);
+	weasel::Status GlobalToggleAsciiMode();
 
 private:
 	void _Setup();

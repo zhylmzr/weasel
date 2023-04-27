@@ -328,7 +328,10 @@ void RimeWithWeaselHandler::SetOption(UINT session_id, const std::string & opt, 
 	if (opt == "ascii_mode") {
 		m_status.ascii_mode = val;
 		if (m_is_global_ascii_mode) {
-			ToggleAllAsciiMode(val);
+			Bool ascii_mode = (Bool)m_status.ascii_mode;
+			std::for_each(m_session_ids.begin(), m_session_ids.end(), [ascii_mode](auto session_id) {
+				RimeSetOption(session_id, "ascii_mode", ascii_mode);
+			});
 			return;
 		}
 	}
@@ -802,18 +805,25 @@ void RimeWithWeaselHandler::_UpdateStatus(UINT session_id) {
 	RIME_STRUCT(RimeStatus, status);
 	if (RimeGetStatus(session_id, &status)) {
 		m_status.ascii_mode = status.is_ascii_mode;
+		m_status.composing = status.is_composing;
 		RimeFreeStatus(&status);
 	}
 }
 
-bool RimeWithWeaselHandler::ToggleAllAsciiMode(int ascii) {
-	Bool ascii_mode = (int)ascii;
-	if (ascii == -1) {
-		ascii_mode = (int)!m_status.ascii_mode;
+weasel::Status RimeWithWeaselHandler::GlobalToggleAsciiMode() {
+    weasel::Status old_status(m_status);
+	bool ascii_mode = !m_status.ascii_mode;
+	m_status.ascii_mode = ascii_mode;
+	if (ascii_mode) {
+		// It has been modified ascii_mode for m_active_session
+		RimeCommitCode(m_active_session, true);
 	}
-     m_status.ascii_mode = (bool)ascii_mode;
-	std::for_each(m_session_ids.begin(), m_session_ids.end(), [ascii_mode](auto session_id) {
-		RimeSetOption(session_id, "ascii_mode", ascii_mode);
+
+	UINT active_session = m_active_session;
+	std::for_each(m_session_ids.begin(), m_session_ids.end(), [ascii_mode, active_session](auto session_id) {
+		if (ascii_mode && session_id != active_session || !ascii_mode) {
+			RimeSetOption(session_id, "ascii_mode", (Bool)ascii_mode);
+		}
 	});
-	return m_status.ascii_mode;
+    return old_status;
 }

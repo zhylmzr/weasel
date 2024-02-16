@@ -93,6 +93,16 @@ bool ClientImpl::ClearComposition()
 	return ret != 0;
 }
 
+bool ClientImpl::CommitCode()
+{
+	if (!_Active())
+		return false;
+
+	LRESULT ret = _SendMessage(WEASEL_IPC_COMMIT_CODE, 0, session_id);
+	return ret != 0;
+}
+
+
 void ClientImpl::UpdateInputPosition(RECT const& rc)
 {
 	if (!_Active())
@@ -242,6 +252,11 @@ bool Client::CommitComposition()
 bool Client::ClearComposition()
 {
 	return m_pImpl->ClearComposition();
+}
+
+bool Client::CommitCode()
+{
+	return m_pImpl->CommitCode();
 }
 
 void Client::UpdateInputPosition(RECT const& rc)

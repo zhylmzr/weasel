@@ -94,6 +94,7 @@ public:
 	/* Language bar */
 	HWND _GetFocusedContextWindow();
 	void _HandleLangBarMenuSelect(UINT wID);
+	void _CloseKeyboard();
 
 	/* IPC */
 	void _EnsureServerConnected();

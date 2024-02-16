@@ -298,6 +298,18 @@ DWORD ServerImpl::OnClearComposition(WEASEL_IPC_COMMAND uMsg, DWORD wParam, DWOR
 	return 0;
 }
 
+DWORD ServerImpl::OnCommitCode(WEASEL_IPC_COMMAND uMsg, DWORD wParam, DWORD lParam)
+{
+	if (m_pRequestHandler) {
+		auto eat = [this](std::wstring& msg) -> bool {
+			*channel << msg;
+			return true;
+		};
+		m_pRequestHandler->CommitCode(lParam, eat);
+	}
+	return 0;
+}
+
 #define MAP_PIPE_MSG_HANDLE(__msg, __wParam, __lParam) {\
 auto lParam = __lParam;\
 auto wParam = __wParam;\
@@ -329,6 +341,7 @@ void ServerImpl::HandlePipeMessage(PipeMessage pipe_msg, _Resp resp)
 		PIPE_MSG_HANDLE(WEASEL_IPC_END_MAINTENANCE, OnEndMaintenance)
 		PIPE_MSG_HANDLE(WEASEL_IPC_COMMIT_COMPOSITION, OnCommitComposition)
 		PIPE_MSG_HANDLE(WEASEL_IPC_CLEAR_COMPOSITION, OnClearComposition);
+		PIPE_MSG_HANDLE(WEASEL_IPC_COMMIT_CODE, OnCommitCode);
 		PIPE_MSG_HANDLE(WEASEL_IPC_TRAY_COMMAND, OnCommand);
 	END_MAP_PIPE_MSG_HANDLE(result);
 

@@ -176,6 +176,15 @@ void RimeWithWeaselHandler::ClearComposition(UINT session_id)
 	m_active_session = session_id;
 }
 
+void RimeWithWeaselHandler::CommitCode(UINT session_id, EatLine eat)
+{
+	DLOG(INFO) << "Commit code: session_id = " << session_id;
+	if (m_disabled) return;
+	RimeCommitCode(session_id, m_status.ascii_mode);
+	_Respond(session_id, eat);
+	m_active_session = session_id;
+}
+
 void RimeWithWeaselHandler::FocusIn(DWORD client_caps, UINT session_id)
 {
 	DLOG(INFO) << "Focus in: session_id = " << session_id << ", client_caps = " << client_caps;

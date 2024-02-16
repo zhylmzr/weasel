@@ -359,3 +359,11 @@ BOOL WeaselTSF::_IsComposing()
 {
 	return _pComposition != NULL;
 }
+
+void WeaselTSF::_CloseKeyboard() {
+	m_client.CommitCode();
+	if (_IsComposing()) {
+		_EndComposition(_pEditSessionContext, true);
+	}
+	_cand->Destroy();
+}

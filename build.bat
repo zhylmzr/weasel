@@ -151,6 +151,7 @@ if not exist weasel.props (
 
 del msbuild*.log
 
+echo building weasel...
 if %build_hant% == 1 (
   if %build_x64% == 1 (
     msbuild.exe weasel.sln %build_option% /p:Configuration=ReleaseHant /p:Platform="x64" /fl4
@@ -168,6 +169,7 @@ msbuild.exe weasel.sln %build_option% /p:Configuration=%build_config% /p:Platfor
 if errorlevel 1 goto error
 
 if %build_installer% == 1 (
+  echo building installer
   "%ProgramFiles(x86)%"\NSIS\Bin\makensis.exe ^
   /DWEASEL_VERSION=%WEASEL_VERSION% ^
   /DWEASEL_BUILD=%WEASEL_BUILD% ^
@@ -225,7 +227,7 @@ if errorlevel 1 goto error
 exit /b
 
 :build_opencc_data
-if not exist %WEASEL_ROOT%\librime\share\opencc\TSCharacters.ocd (
+if not exist %WEASEL_ROOT%\librime\share\opencc\TSCharacters.ocd2 (
   cd %WEASEL_ROOT%\librime
   call build.bat deps %rime_build_variant%
   if errorlevel 1 goto error

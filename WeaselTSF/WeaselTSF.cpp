@@ -146,9 +146,6 @@ STDAPI WeaselTSF::ActivateEx(ITfThreadMgr *pThreadMgr, TfClientId tfClientId, DW
 	if (!_InitLanguageBar())
 		goto ExitError;
 
-	if (!_IsKeyboardOpen())
-		_SetKeyboardOpen(TRUE);
-
 	if (!_InitCompartment())
 		goto ExitError;
 

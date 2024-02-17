@@ -176,12 +176,14 @@ void RimeWithWeaselHandler::ClearComposition(UINT session_id)
 	m_active_session = session_id;
 }
 
-void RimeWithWeaselHandler::CommitCode(UINT session_id, EatLine eat)
+void RimeWithWeaselHandler::ToggleCNEN(UINT session_id, EatLine eat)
 {
 	DLOG(INFO) << "Commit code: session_id = " << session_id;
 	if (m_disabled) return;
+	_UpdateStatus(session_id);
+	m_status.ascii_mode = !m_status.ascii_mode;
 	RimeCommitCode(session_id, m_status.ascii_mode);
-	_Respond(session_id, eat);
+	_UpdateUI(session_id);
 	m_active_session = session_id;
 }
 

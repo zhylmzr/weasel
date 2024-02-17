@@ -360,8 +360,8 @@ BOOL WeaselTSF::_IsComposing()
 	return _pComposition != NULL;
 }
 
-void WeaselTSF::_CloseKeyboard() {
-	m_client.CommitCode();
+void WeaselTSF::_ToggleKeyboardOpenClose() {
+	m_client.ToggleCNEN();
 	if (_IsComposing()) {
 		_EndComposition(_pEditSessionContext, true);
 	}

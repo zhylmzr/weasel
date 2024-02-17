@@ -26,7 +26,7 @@ public:
 	virtual BOOL ProcessKeyEvent(weasel::KeyEvent keyEvent, UINT session_id, EatLine eat);
 	virtual void CommitComposition(UINT session_id);
 	virtual void ClearComposition(UINT session_id);
-	virtual void CommitCode(UINT session_id, EatLine eat) override;
+	virtual void ToggleCNEN(UINT session_id, EatLine eat) override;
 	virtual void FocusIn(DWORD param, UINT session_id);
 	virtual void FocusOut(DWORD param, UINT session_id);
 	virtual void UpdateInputPosition(RECT const& rc, UINT session_id);

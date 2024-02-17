@@ -5,9 +5,6 @@
 
 void WeaselTSF::_ProcessKeyEvent(WPARAM wParam, LPARAM lParam, BOOL *pfEaten)
 {
-	if (!_IsKeyboardOpen())
-		return;
-
 	_EnsureServerConnected();
 	weasel::KeyEvent ke;
 	GetKeyboardState(_lpbKeyState);

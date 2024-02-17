@@ -93,12 +93,12 @@ bool ClientImpl::ClearComposition()
 	return ret != 0;
 }
 
-bool ClientImpl::CommitCode()
+bool ClientImpl::ToggleCNEN()
 {
 	if (!_Active())
 		return false;
 
-	LRESULT ret = _SendMessage(WEASEL_IPC_COMMIT_CODE, 0, session_id);
+	LRESULT ret = _SendMessage(WEASEL_IPC_TOGGLE_CN_EN, 0, session_id);
 	return ret != 0;
 }
 
@@ -254,9 +254,9 @@ bool Client::ClearComposition()
 	return m_pImpl->ClearComposition();
 }
 
-bool Client::CommitCode()
+bool Client::ToggleCNEN()
 {
-	return m_pImpl->CommitCode();
+	return m_pImpl->ToggleCNEN();
 }
 
 void Client::UpdateInputPosition(RECT const& rc)

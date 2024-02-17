@@ -26,3 +26,4 @@ patch:
 ```yaml
 "global/hide_tip_icon": true # 默认 false
 ```
+6. 调整 `ctrl+space` 系统切换中英文处理逻辑：现在不是开关键盘，而是同其他输入法一样，仅切换中英文。
